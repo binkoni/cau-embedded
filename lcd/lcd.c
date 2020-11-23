@@ -12,7 +12,7 @@
 #define LCD_MODULE_VERSION "lcd V1.0"
 #define LCD_ADDR 0x090
 #define LCD_NUM_CHARS 32
-#define LCD_MAGIC 0xBD
+#define LCD_MAGIC 0x8D
 #define LCD_SET_CURSOR_POS _IOW(LCD_MAGIC, 0, int)
 
 extern ssize_t iom_fpga_itf_read(unsigned int addr);

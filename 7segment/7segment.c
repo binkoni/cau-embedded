@@ -18,76 +18,76 @@ static int sseg_in_use = 0;
 
 int sseg_open(struct inode *pinode, struct file *pfile)
 {
-	if (sseg_in_use != 0) {
-		return -EBUSY;
-	}
-	sseg_in_use = -1;
-	return 0;
+    if (sseg_in_use != 0) {
+        return -EBUSY;
+    }
+    sseg_in_use = -1;
+    return 0;
 }
 
 int sseg_release(struct inode *pinode, struct file *pfile)
 {
-	sseg_in_use = 0;
-	return 0;
+    sseg_in_use = 0;
+    return 0;
 }
 
 ssize_t sseg_write(struct file *pinode, const char *gdata, size_t len, loff_t *off_what)
 {
-	unsigned char bytevalues[4];
-	unsigned short wordvalue;
-	const char *tmp = gdata;
-	if (copy_from_user(bytevalues, tmp, 4)) {
-		return -EFAULT;
-	}
+    unsigned char bytevalues[4];
+    unsigned short wordvalue;
+    const char *tmp = gdata;
+    if (copy_from_user(bytevalues, tmp, 4)) {
+        return -EFAULT;
+    }
 
-	wordvalue = (bytevalues[0] << 12) | (bytevalues[1] << 8) |
-		(bytevalues[2] << 4) | (bytevalues[3] << 0);
-	iom_fpga_itf_write((unsigned int) SSEG_ADDR, wordvalue);
-	return len;
+    wordvalue = (bytevalues[0] << 12) | (bytevalues[1] << 8) |
+        (bytevalues[2] << 4) | (bytevalues[3] << 0);
+    iom_fpga_itf_write((unsigned int) SSEG_ADDR, wordvalue);
+    return len;
 }
 
 ssize_t sseg_read(struct file *pinode, char *gdata, size_t len, loff_t *off_what)
 {
-	unsigned char bytevalues[4];
-	unsigned short wordvalue;
-	char *tmp = NULL;
-	tmp = gdata;
-	wordvalue = iom_fpga_itf_read((unsigned int)SSEG_ADDR);
-	bytevalues[0] = (wordvalue >> 12) & 0xF;
-	bytevalues[1] = (wordvalue >> 8) & 0xF;
-	bytevalues[2] = (wordvalue >> 4) & 0xF;
-	bytevalues[3] = (wordvalue >> 0) & 0xF;
-	if (copy_to_user(tmp, bytevalues, 4)) {
-		return -EFAULT;
-	}
-	return len;
+    unsigned char bytevalues[4];
+    unsigned short wordvalue;
+    char *tmp = NULL;
+    tmp = gdata;
+    wordvalue = iom_fpga_itf_read((unsigned int)SSEG_ADDR);
+    bytevalues[0] = (wordvalue >> 12) & 0xF;
+    bytevalues[1] = (wordvalue >> 8) & 0xF;
+    bytevalues[2] = (wordvalue >> 4) & 0xF;
+    bytevalues[3] = (wordvalue >> 0) & 0xF;
+    if (copy_to_user(tmp, bytevalues, 4)) {
+        return -EFAULT;
+    }
+    return len;
 }
 
 static struct file_operations sseg_fops = {
-	.owner = THIS_MODULE,
-	.open = sseg_open,
-	.read = sseg_read,
-	.write = sseg_write,
-	.release = sseg_release,
+    .owner = THIS_MODULE,
+    .open = sseg_open,
+    .read = sseg_read,
+    .write = sseg_write,
+    .release = sseg_release,
 };
 
 static struct miscdevice sseg_driver = {
-	.fops = &sseg_fops,
-	.name = SSEG_NAME,
-	.minor = MISC_DYNAMIC_MINOR,
+    .fops = &sseg_fops,
+    .name = SSEG_NAME,
+    .minor = MISC_DYNAMIC_MINOR,
 };
 
 int sseg_init(void)
 {
-	misc_register(&sseg_driver);
-	printk(KERN_INFO "driver: %s driver init\n", SSEG_NAME);
-	return 0;
+    misc_register(&sseg_driver);
+    printk(KERN_INFO "driver: %s driver init\n", SSEG_NAME);
+    return 0;
 }
 
 void sseg_exit(void)
 {
-	misc_deregister(&sseg_driver);
-	printk(KERN_INFO "driver: %s driver exit\n", SSEG_NAME);
+    misc_deregister(&sseg_driver);
+    printk(KERN_INFO "driver: %s driver exit\n", SSEG_NAME);
 }
 
 module_init(sseg_init);
