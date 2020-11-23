@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#define LCD_MAGIC 0xBD
+#define LCD_MAGIC 0x8D
 #define LCD_SET_CURSOR_POS _IOW(LCD_MAGIC, 0, int)
 int main(int argc, char **argv)
 {
